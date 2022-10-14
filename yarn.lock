@@ -28,11 +28,6 @@ kind-of@^6.0.2:
   resolved "https://registry.npm.taobao.org/kind-of/download/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha1-B8BQNKbDSfoG4k+jWqdttFgM5N0=
 
-miniprogram-computed@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.npm.taobao.org/miniprogram-computed/download/miniprogram-computed-0.0.6.tgz#c8fc83517a1394ee436838a2bb266ec4ab58da2f"
-  integrity sha1-yPyDUXoTlO5DaDiiuyZuxKtY2i8=
-
 shallow-clone@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npm.taobao.org/shallow-clone/download/shallow-clone-3.0.1.tgz#8f2981ad92531f55035b01fb230769a40e02efa3"
@@ -40,10 +35,9 @@ shallow-clone@^3.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-xylink-sdk@^1.0.73:
-  version "1.0.73"
-  resolved "https://registry.npmjs.org/xylink-sdk/-/xylink-sdk-1.0.73.tgz#fdf3a15cf1a3bfa1de0a78ff38c0e5ede6041771"
-  integrity sha512-vbFO/NW/sdNvNiWPbxqs27ECx2CHN8448Z+KD5EzF4uJo2eGLchZP2XCjpCwAvtEzKt7nG+Ka7g6GCPrWjxY1Q==
+xylink-sdk@1.0.75-beta.0:
+  version "1.0.75-beta.0"
+  resolved "https://registry.yarnpkg.com/xylink-sdk/-/xylink-sdk-1.0.75-beta.0.tgz#3d7654f12f847910d6c74cf27ec29e01a861df0d"
+  integrity sha512-MYsxeyY6ZcoK4Qk7xHsBPYLL3uUBYw9C0i0kPBhjmhioPYp4/nM1sI3yMit4ivJNoR4ogSexU4G++tdD0XnBtQ==
   dependencies:
     clone-deep "^4.0.1"
-    miniprogram-computed "^0.0.6"

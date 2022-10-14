@@ -2,13 +2,13 @@
 
 ### 文档
 
-在这里查阅 sdk 文档：[文档](http://openapi.xylink.com/api_miniprogram/api)
+在这里查阅小程序SDK文档：[文档](https://openapi.xylink.com/common/meeting/doc/description?platform=miniprogram)
 
 ### 准备工作
 
-1. 计算并获取 token，用户登录接口使用，参见[文档](http://openapi.xylink.com/doc_miniprogram/reference/miniprogram_server#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C)
+1. 计算并获取 token，用户登录接口使用，参见[文档](https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram)
 2. 将获取到的 token 在`/pages/index/index.js`中进行配置。
-3. 因为运行小程序，需要小程序所对应的 appid 进行一定的配置，具体的配置参考下面的连接：[运行环境配置](http://openapi.xylink.com/doc_miniprogram/quick_start/run_demo#%E5%BC%80%E9%80%9A%E9%85%8D%E7%BD%AE)
+3. 因为运行小程序，需要小程序所对应的 appid 进行一定的配置，具体的配置参考下面的连接：[运行环境配置](https://openapi.xylink.com/common/meeting/doc/run_demo?platform=miniprogram#h0613ccc-WVyQKxZj)
 
 ### 运行
 
