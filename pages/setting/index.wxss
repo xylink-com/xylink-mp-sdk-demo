@@ -1,0 +1,45 @@
+.container {
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  font-size: 14PX;
+}
+
+.setting-title{
+  font-size: 16PX;
+  margin-top: 30PX;
+}
+
+.form-input {
+  border: 1px solid #ddd;
+  font-size: 15PX;
+  padding: 0 10rpx;
+  height: 80rpx;
+  margin: 10px 0 30px;
+}
+
+.form-audio{
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10PX;
+  margin-right: 20PX;
+}
+
+.from-audio-group{
+  display: flex;
+}
+
+.btn {
+  margin-bottom: 10PX;
+  font-size: 14PX;
+}
+
+.version{
+  text-align: center;
+  font-size: 12PX;
+  color: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  bottom: 30PX;
+  width: calc(100% - 40PX);
+  box-sizing: border-box;
+}

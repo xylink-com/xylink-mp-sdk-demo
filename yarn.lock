@@ -2,42 +2,7 @@
 # yarn lockfile v1
 
 
-clone-deep@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/clone-deep/-/clone-deep-4.0.1.tgz#c19fd9bdbbf85942b4fd979c84dcf7d5f07c2387"
-  integrity sha512-neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ==
-  dependencies:
-    is-plain-object "^2.0.4"
-    kind-of "^6.0.2"
-    shallow-clone "^3.0.0"
-
-is-plain-object@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/is-plain-object/-/is-plain-object-2.0.4.tgz#2c163b3fafb1b606d9d17928f05c2a1c38e07677"
-  integrity sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==
-  dependencies:
-    isobject "^3.0.1"
-
-isobject@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
-  integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
-
-kind-of@^6.0.2:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
-  integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
-
-shallow-clone@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/shallow-clone/-/shallow-clone-3.0.1.tgz#8f2981ad92531f55035b01fb230769a40e02efa3"
-  integrity sha512-/6KqX+GVUdqPuPPd2LxDDxzX6CAbjJehAAOKlNpqqUpAqPM6HeL8f+o3a+JsyGjn2lv0WY8UsTgUJjU9Ok55NA==
-  dependencies:
-    kind-of "^6.0.2"
-
-xylink-sdk@^1.0.75:
-  version "1.0.75"
-  resolved "https://registry.yarnpkg.com/xylink-sdk/-/xylink-sdk-1.0.75.tgz#16e6bda8c42d38a1d60266c2cfa0e1b26334bee4"
-  integrity sha512-FQ86tA1ZvJ0ZKuiw3VOvE+yk000WGVEi5bFO7n6ZbF+YIpu8tz2peBB8Paet4nr6x1sA5Pc475FEqJjmfix5yA==
-  dependencies:
-    clone-deep "^4.0.1"
+"@xylink/xy-mp-sdk@3.8.0-beta.14":
+  version "3.8.0-beta.14"
+  resolved "https://fe-private-npm.xylink.com/@xylink%2fxy-mp-sdk/-/xy-mp-sdk-3.8.0-beta.14.tgz#267a13f0b631ed47e0ac5fe320b10605e87febbf"
+  integrity sha512-XcI2eA1KByZ1pVOyryDVpuosZEei7dYDqTlxxWGZRCHXOtk5IVhNPZg+yhcCMUXqsOZaIHm4EcH176hQfVLfNg==
