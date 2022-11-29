@@ -2,7 +2,7 @@
  * 小鱼易连SDK示例程序-加入会议
  *
  * Created at     : 2022-11-16 19:51:33
- * Last modified  : 2022-11-25 09:48:37
+ * Last modified  : 2022-11-29 20:50:52
  */
 
 // import xylink from 'xylink-sdk/common/room.js';
@@ -14,9 +14,10 @@ const app = getApp();
 Page({
   data: {
     meeting: {
-      number: '9303257906',
+      number: '',
       password: '',
-      displayName: 'mp666',
+      displayName: '',
+      // 创建Token，详见文档：https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram
       token: '',
     },
     version: '',
@@ -30,10 +31,11 @@ Page({
     // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
     this.XYClient = XYRTC.createClient();
 
-    console.log('this.XYClient1: ', this.XYClient);
+    console.log('this.XYClient: ', this.XYClient);
 
-    // SDK默认是线上环境地址，无特殊需要，可不用设置
-    this.XYClient.setServer('qamp.xylink.com');
+    // SDK默认是线上环境地址（wxrtc.xylink.com），无特殊需要，可不用设置
+    // 此处是测试设置域名功能
+    this.XYClient.setServer('wxrtc.xylink.com');
 
     this.setData({ version: `v${version} - ${time}` });
   },
