@@ -53,7 +53,9 @@ Page({
 
     // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
     this.XYClient = XYRTC.createClient({
-      container: { offset: [0, 0, 0, 0] },
+      // 配置画面容器偏移量：上：0px，下：40px，左右：0px
+      // 目的是排除底部40px空间，显示操作条
+      container: { offset: [0, 40, 0, 0] },
     });
 
     this.userInfo = this.XYClient.getUserInfo();
