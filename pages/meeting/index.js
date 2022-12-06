@@ -1,299 +1,310 @@
 /**
  * Meeting page demo
- * 
+ *
  * @authors Luo-jinghui (luojinghui424@gmail.com)
  * @date  2019-06-01 23:04:27
  */
 
-import xylink from 'xylink-sdk/common/room.js';
-import { FailEnumMap, STR_CALL_FAIL_UNKNOW_REASON } from './enum.js';
-
-const defaultAvatar = 'https://devcdn.xylink.com/miniProgram/photo_default.png';
-
-// 定义custom模版匹配数据
-// dmeo演示的是画廊模式布局，即对称模版布局
-// 如果要支持大屏，可以自行扩展模版
-const positionMap = [
-	{
-		// 2人，self代表自己的位置，other代表其他人位置
-		self: [ 10, 0, 90, 50 ],
-		other: [
-			{
-				position: [ 10, 50, 90, 50 ]
-			}
-		]
-	},
-	{
-		// 3人
-		self: [ 10, 0, 45, 50 ],
-		other: [
-			{
-				position: [ 55, 25, 45, 50 ]
-			},
-			{
-				position: [ 10, 50, 45, 50 ]
-			}
-		]
-	},
-	{
-		// 4人
-		self: [ 10, 0, 45, 50 ],
-		other: [
-			{
-				position: [ 55, 0, 45, 50 ]
-			},
-			{
-				position: [ 55, 50, 45, 50 ]
-			},
-			{
-				position: [ 10, 50, 45, 50 ]
-			}
-		]
-	}
-	// ...更多可以自行扩充
-];
+import XYRTC from '@xylink/xy-mp-sdk';
+import { showToast } from '../../utils/index';
+import { CUSTOM_TEMPLATE } from './template';
 
 Page({
-	data: {
-		muted: false,
-		devicePosition: 'front',
-		meetingLoading: true,
-		camera: true,
-		onHold: false, // 是否通话等待
-		avatar: defaultAvatar, // 用户头像
+  data: {
+    // 麦克风状态
+    muted: false,
+    // 摄像头状态
+    camera: true,
+    // 前/后置摄像头
+    devicePosition: 'front',
+    // 呼叫Loading
+    meetingLoading: true,
+    // 是否是等候室状态
+    onHold: true,
 
-		// auto模式（自动支持主会场，语音激励，onHold，收远端共享Content内容）
-		template: {
-			layout: 'auto',
-			mode: '4-1'
-		}
+    // 此处没有读取设置页面的值，是因为小程序data值会全局缓存，退出在进入后仍然获取上一次的值，解决办法是在onLoad上重新赋值
+    // 指定SDK UI布局模式，可选auto：自动布局 ｜ custom：自定义布局
+    template: {
+      layout: 'auto',
+      detail: [],
+    },
+    displayName: '',
+  },
 
-		// custom模式，不用配置mode模式（需自行定义页面布局）
-		// 在onLoad声明函数内，更新会中初始画面
-		// template: {
-		// 	layout: 'custom',
-		// 	detail: []
-		// }
-	},
+  /**
+   * 页面加载时触发，可以在 onLoad 的参数中获取打开当前页面路径中的参数
+   *
+   * @param { object } option - 页面URL参数信息
+   */
+  onLoad(option) {
+    this.pageOption = option;
+    const layoutMode = wx.getStorageSync('XY_LAYOUT_MODE') || 'auto';
 
-	onLoad(option) {
-		console.log('demo page onload: ', option);
+    // 设置默认值
+    this.setData({
+      template: { layout: layoutMode, detail: [] },
+      muted: false,
+      camera: true,
+      onHold: false,
+      devicePosition: 'front',
+      displayName: option.displayName,
+    });
 
-		this.callNumber = wx.getStorageSync('callNumber');
-		this.pageParams = option;
+    // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
+    this.XYClient = XYRTC.createClient({
+      // 配置画面容器偏移量：上：0px，下：40px，左右：0px
+      // 目的是排除底部40px空间，显示操作条
+      container: { offset: [0, 40, 0, 0] },
+    });
 
-		if (this.data.template.layout === 'custom') {
-			// 初始页面加载时，获取本地Local数据，做首屏展示
-			this.setData({
-				template: {
-					layout: 'custom',
-					detail: [
-						{
-							position: [ 10, 0, 90, 100 ],
-							callNumber: this.callNumber,
-							name: this.pageParams.name || '',
-							quality: 'normal',
-							isContent: false
-						}
-					]
-				}
-			});
-		}
-	},
+    this.userInfo = this.XYClient.getUserInfo();
+    const { callNumber = '' } = this.userInfo;
 
-	onUnload() {
-		clearTimeout(this.timmer);
-	},
+    // 自定义布局，设置初始本地Local预览画面和启动推流
+    if (layoutMode === 'custom') {
+      // 初始页面加载时，获取本地Local数据，做首屏展示
+      this.setData({
+        template: {
+          layout: layoutMode,
+          detail: [
+            {
+              // 最终转换为x: 0vw, y: 0vh, width: 100vw, height: 85vh
+              position: [0, 0, 100, 85],
+              callNumber,
+              name: this.pageOption.displayName || '',
+              quality: 'normal',
+              isContent: false,
+            },
+          ],
+        },
+      });
+    }
+  },
 
-	// 会议页面准备阶段的生命周期函数
-	onReady() {
-		const { number, password, name } = this.pageParams;
-		// 缓存sdk <xylink-sdk/>组件节点context，为后续调用组件内部方法用
-		this.xylinkRoom = this.selectComponent('#xylink');
-		// 可选执行，设置是否进行内部事件的console和写入logger文件中，用于分析问题使用，默认都不开启
-		this.xylinkRoom.setDebug(true, true);
+  /**
+   * 页面卸载时触发
+   */
+  onUnload() {},
 
-		// 发起呼叫，内部执行验证会议号等验证
-		xylink.makeCall(number, password, name, this.onGetCallStatus);
-	},
+  /**
+   * 小程序页面初次渲染完成时触发，可以和视图层交互
+   */
+  onReady() {
+    const { number, password, displayName } = this.pageOption;
 
-	// mackCall事件回调，通知是否可以进行入会操作。
-	onGetCallStatus(response) {
-		// 响应makeCall状态，如果为200， 可以进行隐藏呼叫loading页面，执行start方法通知组件内部进行一系列操作
-		// 比如连接socket，开启内部room事件向外发送
-		const { code, message } = response;
-		if (code === 200) {
-			// 隐藏loading
-			this.setData({
-				meetingLoading: false
-			});
-			// 通知内部事件开始做入会准备，连接ws，启动roomEvent
-			this.xylinkRoom.start();
-		} else {
-			xylink.showToast(message);
-		}
-	},
+    // 发起SDK呼叫，通过回调获取结果
+    // 此处请参考API文档，新版本新增其他配置参数
+    this.XYClient.makeCall(
+      {
+        number,
+        password,
+        displayName,
+      },
+      this.onGetCallStatus
+    );
+  },
 
-	onSwitchPosition() {
-		const position = this.xylinkRoom.switchCamera();
+  /**
+   * 呼叫事件回调，通知是否可以进行入会操作
+   *
+   * 此处有两处逻辑变动：
+   * • makeCall方法传递参数发生变化，第一个参数改为了对象，内容不变，第二个参数设置回调函数；
+   * • 回调函数中，判断呼叫成功并隐藏CallLoading的逻辑移动到监听事件“connected”中触发，调用组件的start方法移除：
+   */
+  onGetCallStatus(response) {
+    console.log('call response: ', response);
+    const { code, message } = response;
 
-		this.setData({
-			devicePosition: position
-		});
-	},
+    // 最新的逻辑仅需要处理异常呼叫入会即可，其他逻辑不需要再处理
+    if (code !== 200) {
+      showToast(message, () => {
+        // 退出呼叫页面
+        wx.navigateBack({ delta: 1 });
+      });
+    }
+  },
 
-	onChangeMuted() {
-		this.setData({
-			muted: !this.data.muted
-		});
-	},
+  /**
+   * 切换前后置摄像头
+   */
+  async onSwitchPosition() {
+    const position = await this.XYClient.switchCamera();
 
-	onSwitchCamera() {
-		this.setData({
-			camera: !this.data.camera
-		});
-	},
+    console.log('switch camera position: ', position);
 
-	onStopMeeting() {
-		wx.navigateBack({
-			delta: 1
-		});
-	},
+    this.setData({ devicePosition: position });
+  },
 
-	onRoomEvent(ms) {
-		const { type, detail, message } = ms.detail;
+  /**
+   * 开启/关闭麦克风
+   */
+  onChangeMuted() {
+    this.setData({ muted: !this.data.muted });
+  },
 
-		switch (type) {
-			case 'callStatus':
-				if (detail === 'connected') {
-					// 入会成功
-				}
+  /**
+   * 开启/关闭摄像头
+   */
+  onSwitchCamera() {
+    this.setData({
+      camera: !this.data.camera,
+    });
+  },
 
-				if (detail === 'disconnected') {
-					this.disConnectMeeting(message);
-				}
+  /**
+   * 退出会议界面
+   *
+   * UI组件模式，无需调用挂断会议方法，内部组件监听到组件销毁后自动调用
+   * 非UI组件模式下，需要调用client的hangup方法进行挂断会议操作
+   */
+  onStopMeeting() {
+    wx.navigateBack({ delta: 1 });
+  },
 
-				break;
-			case 'roomExit':
-				console.log('demo get room exit message: ', message);
+  /**
+   * 挂断会议消息
+   *
+   * 收到此消息可能是因为服务异常、会控挂断、网络断链等情况
+   */
+  disConnectMeeting(detail) {
+    console.log('disConnectMeeting detail:', detail);
+    const { message } = detail;
 
-				break;
-			case 'roomChange':
-				console.log('demo get live-pusher status change message: ', detail);
-				break;
-			case 'onHold':
-				console.log('demo get onHold mesage: ', detail);
-				this.setData({
-					onHold: detail
-				});
+    if (message) {
+      // 存在message消息，则直接提示，默认3s后退会会议界面
+      // 注意此处的message可以直接用做展示使用，不需要开发者再进行错误码的匹配
+      showToast(message, () => {
+        this.onStopMeeting();
+      });
+    } else {
+      // 不存在message消息，直接退会
+      this.onStopMeeting();
+    }
+  },
 
-				break;
-			case 'roster':
-				// 如果是custom模式，需要自行处理roster list数据，此数据是参会者list数据
-				// 重要：
-				// roster item包含参会者状态，基本信息，语音激励状态，分享content状态
-				console.log('demo get roster message: ', detail);
+  /**
+   * SDK上报的事件消息
+   *
+   * @param { object } event - 事件消息内容
+   */
+  onRoomEvent(event) {
+    const { type, detail } = event.detail;
 
-				if (this.data.template.layout !== 'custom') {
-					return;
-				}
+    switch (type) {
+      case 'connected':
+        // 入会成功消息
+        console.log('demo get connected message: ', detail);
 
-				// 处理custom模式自定义布局
-				const newDetails = [];
-				// 获取roster数据
-				const roster = detail.rosterV;
-				// 获取第一个roster中的callNumber数据，用来判断是否只有自己
-				const fristCallNumber = roster[0] ? roster[0].callNumber : 0;
-				// 是否只有自己（roster可能会存在自己的数据）
-				const isMyself = (roster.length === 1 && fristCallNumber === this.callNumber) || roster.length === 0;
+        // 隐藏呼叫Loading
+        this.setData({ meetingLoading: false });
+        break;
+      case 'disconnected':
+        // 退出会议消息
+        console.log('demo get disconnected message: ', detail);
 
-				// 会中只有自己
-				if (isMyself) {
-					// 如果是自己，并且会中只有自己，则将自己满屏展示
-					// 更新template数据
-					this.setData({
-						template: {
-							layout: 'custom',
-							detail: [
-								{
-									position: [ 10, 0, 90, 100 ],
-									callNumber: this.callNumber,
-									name: this.pageParams.name || '',
-									quality: 'normal',
-									isContent: false
-								}
-							]
-						}
-					});
-				} else {
-					// 入会存在其他人
-					const len = roster.length - 1;
-					const selfDetailObj = {
-						position: positionMap[len].self,
-						callNumber: this.callNumber,
-						name: this.pageParams.name,
-						quality: 'normal',
-						isContent: false
-					};
+        this.disConnectMeeting(detail);
+        break;
+      case 'roomChange':
+        // live-pusher推流状态消息
+        console.log('demo get live-pusher status change message: ', detail);
 
-					roster.forEach((item, index) => {
-						newDetails.push({
-							position: positionMap[len].other[index].position,
-							callNumber: item.callNumber,
-							name: item.displayName || '',
-							// 如果roster item中的isContent为true，代表是Content内容，需要将质量设置为hd（720p）分辨率
-							quality: item.isContent ? 'hd' : 'normal',
-							isContent: item.isContent
-						});
-					});
+        break;
+      case 'onHold':
+        // 被会控移入等候室，当前参会者无法接收到远端的声音和画面，本地画面和声音也无法发送
+        console.log('demo get onHold message: ', detail);
 
-					// 将自己的画面放到左边第一个位置，并置于detail的首位，方便查找数据和匹配模版数据
-					newDetails.unshift(selfDetailObj);
+        this.setData({ onHold: detail });
+        break;
+      case 'roster':
+        // 参会者列表数据，当有人员变动或者状态变动，会实时推送最新的列表数据
+        console.log('demo get roster message: ', detail);
 
-					// 更新template数据
-					this.setData({
-						template: Object.assign({}, this.data.template, {
-							detail: newDetails
-						})
-					});
-				}
+        // 自动布局不需要处理Roster数据
+        if (this.data.template.layout !== 'custom') {
+          return;
+        }
 
-				break;
-			case 'event':
-				// 内部每一项layout的点击事件
-				// 如果存在roster item数据，则通过：message.target.item获取到当前点击的屏幕所对应的roster数据
-				console.log('detail: ', message.target);
+        this.handleCustomLayout(detail);
 
-				break;
-			default: {
-				console.log('demo get other message: ', ms.detail);
-			}
-		}
-	},
+        break;
+      case 'netQualityLevel':
+        // 网络质量等级
+        console.log('demo get netQualityLevel: ', detail);
 
-	// 接收到disconnect消息，挂断会议
-	disConnectMeeting(Obj) {
-		let detail = FailEnumMap[Obj.detail];
-		detail = detail ? detail : STR_CALL_FAIL_UNKNOW_REASON;
+        break;
+      case 'audioStatus':
+        // 推送实时麦克风状态，最新的麦克风状态请以此为准
+        console.log('demo get audio status: ', detail);
 
-		wx.showToast({
-			title: '12312',
-			icon: 'none',
-			duration: 3000,
-			mask: true,
-			success() {
-				setTimeout(() => {
-					wx.navigateBack({
-						delta: 1
-					});
-				}, 3000);
-			}
-		});
-	},
+        this.setData({ muted: detail });
+        break;
+      case 'confMgmt':
+        // 会控消息
+        console.log('demo get 会控消息：', detail);
 
-	jump() {
-		wx.navigateTo({
-			url: `/pages/test/index`
-		});
-	}
+        break;
+      case 'eventClick':
+        // 画面点击事件
+        console.log('demo get eventClick message：', detail);
+
+        break;
+      case 'eventLongPress':
+        // 画面长按事件
+        console.log('demo get eventLongPress message：', detail);
+
+        break;
+      case 'eventDoubleClick':
+        // 画面双击事件
+        console.log('demo get eventDoubleClick message：', detail);
+
+        break;
+      case 'speakersInfo':
+        // 当前讲话人信息
+        console.log('demo get speakersInfo message：', detail);
+
+        break;
+      default: {
+        console.log('demo get other message: ', event.detail);
+      }
+    }
+  },
+
+  handleCustomLayout(detail) {
+    // 处理custom模式自定义布局
+    const newDetails = [];
+    // 获取roster数据
+    const roster = detail.rosterV;
+
+    // 最多显示9个画面(包括Local)
+    if (roster.length > 8) roster.length = 8;
+
+    const len = roster.length + 1;
+
+    const selfDetailObj = {
+      position: CUSTOM_TEMPLATE[len].self,
+      callNumber: this.userInfo.callNumber,
+      name: this.pageOption.displayName,
+      quality: 'normal',
+      isContent: false,
+    };
+
+    roster.forEach((item, index) => {
+      newDetails.push({
+        position: CUSTOM_TEMPLATE[len].other[index].position,
+        callNumber: item.callNumber,
+        name: item.displayName || '',
+        quality: item.isContent ? 'hd' : 'normal',
+        isContent: item.isContent,
+      });
+    });
+
+    // 自己的数据补充到第一位
+    newDetails.unshift(selfDetailObj);
+
+    this.setData({
+      template: Object.assign({}, this.data.template, {
+        detail: newDetails,
+      }),
+    });
+  },
 });

@@ -1,107 +1,107 @@
-//index.js
-//获取应用实例
-import xylink from 'xylink-sdk/common/room.js';
+/**
+ * 小鱼易连SDK示例程序-加入会议
+ *
+ * Created at     : 2022-11-16 19:51:33
+ * Last modified  : 2022-12-06 19:50:26
+ */
+
+import XYRTC from '@xylink/xy-mp-sdk';
+import { showToast } from '../../utils/index';
 
 const app = getApp();
 
 Page({
-	data: {
-		meeting: {
-			number: '',
-			password: '',
-			name: ''
-		}
-	},
-	onLoad(option) {
-		// 默认sdk是线上环境，可不用设置sdk环境域名。
-		// xylink.setDomain('wss://prdtxlive.xylink.com','https://prdtxlive.xylink.com');
-	},
-	// 执行初始化登录
-	onLogin() {
-		// 重要提示
-		// 重要提示
-		// 重要提示
-		// params {string} token
-		// cb {function} login回互，获取token，然后填写到login的第一个参数里面执行初始化登录
-		// 可以将获取到的callNumber作为登录标示记录到本地，后续入会可不用再次执行xylink.login操作
-		// 具体参见接口文档： https://opensdk.xylink.com/xylink/mp-sdk/wikis/server_api
-		// 重要提示
-		// 重要提示
-		// 重要提示
-    xylink.login('', this.onCallbackGetNumber);
-	},
-	// 执行初始化登录回调函数
-	onCallbackGetNumber(res) {
-		// 状态是200时，初始化登录成功
-		console.log('cb login: ', res);
-		if (res.code === 200) {
-			const cn = res.data.callNumber;
+  data: {
+    meeting: {
+      number: '',
+      password: '',
+      displayName: '',
+      // 创建Token，详见文档：https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram
+      token: '',
+    },
+    version: '',
+  },
 
-			// 存入本地storage里面，作为登录标示。后续入会可不需再次登录，直接入会即可。
-			wx.setStorageSync('callNumber', cn);
-			this.callNumber = cn;
+  /**
+   * 页面加载完成回调，初始化小鱼小程序SDK，创建SDK实例
+   */
+  onLoad() {
+    const { version, time } = XYRTC.version;
+    this.setData({ version: `v${version} - ${time}` });
 
-			wx.showToast({
-				title: '初始化登录成功',
-				icon: 'success',
-				duration: 2000,
-				mask: true
-			});
-		} else {
-			wx.showToast({
-				title: '登录失败，请稍后重试',
-				icon: 'none',
-				duration: 2000,
-				mask: true
-			});
-		}
-	},
+    // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
+    this.XYClient = XYRTC.createClient();
+  },
 
-	// 监听输入
-	bindFromInput: function(e) {
-		const type = e.target.id;
-		const value = e.detail.value;
+  /**
+   * 登录&加入会议
+   */
+  onJoin() {
+    const { token } = this.data.meeting;
 
-		this.setData({
-			meeting: {
-				...this.data.meeting,
-				[type]: value
-			}
-		});
-	},
+    if (!token) {
+      showToast('请填写Token');
+      return;
+    }
 
-	// 加入会议
-	onJoinMeeting: function() {
-		// 没有callNumber，则需要进行login操作
-		const callNumber = wx.getStorageSync('callNumber');
+    // 获取Token参见文档： https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram#h0613ccc-jN2Ef3V7
+    // 第一步：登录
+    this.XYClient.login(token, this.onCallbackGetNumber);
+  },
 
-		// 如果本地没有callNumber字段，则认为没有登录操作。需要提示进行初始化登录
-		if (!callNumber) {
-			wx.showToast({
-				title: '请先执行初始化登录',
-				icon: 'none',
-				duration: 2000,
-				mask: true
-			});
+  /**
+   * SDK登录回调函数
+   *
+   * @param { * } res - 登录回调结果
+   */
+  onCallbackGetNumber(res) {
+    // 状态是200时，初始化登录成功
+    console.log('login callback: ', res);
 
-			return;
-		}
+    if (res.code === 200) {
+      // 将登录得到的用户信息存储到本地，会议页面可能需要用到
+      wx.setStorageSync('XY_User_Info', res.data);
 
-		const { name, password, number } = this.data.meeting;
+      this.callNumber = res.data.callNumber;
 
-		if (!number) {
-			wx.showToast({
-				title: '会议号不能为空', //提示的内容,
-				icon: 'none', //图标,
-				duration: 2000, //延迟时间,
-				mask: true //显示透明蒙层，防止触摸穿透
-			});
-			return;
-		}
+      // 登录成功后，开始加入会议
+      this.joinMeeting();
+    } else {
+      showToast('登录失败，请检查');
+    }
+  },
 
-		// 跳到会议页面，开始进行入会
-		wx.navigateTo({
-			url: `/pages/meeting/index?name=${name}&password=${password}&number=${number}`
-		});
-	}
+  /**
+   * 监听输入
+   */
+  bindFromInput(e) {
+    const type = e.target.id;
+    const value = e.detail.value;
+
+    this.setData({ meeting: { ...this.data.meeting, [type]: value } });
+  },
+
+  /**
+   * 加入会议
+   */
+  joinMeeting() {
+    const { displayName, password, number } = this.data.meeting;
+
+    if (!this.callNumber || !number) {
+      showToast('请检查入会参数');
+      return;
+    }
+
+    // 跳转会议页面
+    wx.navigateTo({
+      url: `/pages/meeting/index?displayName=${displayName}&password=${password}&number=${number}`,
+    });
+  },
+
+  /**
+   * 设置
+   */
+  switchSetting() {
+    wx.navigateTo({ url: '/pages/setting/index' });
+  },
 });

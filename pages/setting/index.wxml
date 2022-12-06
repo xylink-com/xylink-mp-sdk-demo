@@ -1,0 +1,30 @@
+<!-- index.wxml -->
+<view class="container">
+	<view class="setting-title">设置布局模式</view>
+
+	<radio-group class="form-audio-group" bindchange="radioChange">
+		<label class="form-audio" wx:for="{{layoutModes}}" wx:key="value">
+			<view>
+				<radio value="{{item.value}}" checked="{{item.value === layoutMode}}" />
+			</view>
+			<view>{{item.name}}</view>
+		</label>
+	</radio-group>
+
+	<view class="setting-title">设置服务器地址</view>
+	<input
+	 class="form-input"
+	 id="number"
+	 value="{{server}}"
+	 type="text"
+	 bindinput="bindFromInput"
+	/>
+
+	<view class="setting-title">
+		<button class="btn" type="primary" bindtap="update">确认修改</button>
+		<button class="btn" type="default" bindtap="reset">恢复默认值</button>
+	</view>
+
+	<view class="version">版本：{{version}}</view>
+</view>
+

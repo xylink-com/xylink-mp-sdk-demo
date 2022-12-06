@@ -1,9 +1,5 @@
 {
-  "pages": [
-    "pages/index/index",
-    "pages/meeting/index",
-    "pages/test/index"
-  ],
+  "pages": ["pages/index/index", "pages/meeting/index", "pages/setting/index"],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
