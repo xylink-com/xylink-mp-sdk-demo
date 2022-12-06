@@ -5,7 +5,6 @@
  * @date  2019-06-01 23:04:27
  */
 
-// import xylink from 'xylink-sdk/common/room.js';
 import XYRTC from '@xylink/xy-mp-sdk';
 import { showToast } from '../../utils/index';
 import { CUSTOM_TEMPLATE } from './template';

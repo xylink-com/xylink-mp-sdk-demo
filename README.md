@@ -12,12 +12,14 @@
 
 ### 运行
 
-1. 通过 git clone 此项目或者下载 zip 包到本地';
-2. `yarn`或者`npm install`;
-3. 用微信开发者工具打开此项目，并配置 appid;
+1. 克隆项目或者下载 zip 包到本地;
+2. 安装依赖：`npm install`;
+3. 用微信开发者工具打开此项目，并配置有权限的 appid，详情见[开通配置](https://openapi.xylink.com/common/meeting/doc/run_demo?platform=miniprogram#h0613ccc-WVyQKxZj);
 4. 在工具中执行：工具->构建 npm;
 5. 执行编译并预览;
 6. 填写 Token、会议号、用户名称加入会议;
+
+> 微信开发者工具有很强的缓存机制和莫名的 Bug，建议每次更新完依赖后，重新启动开发工具，避免产生异常问题；
 
 ### Note
 

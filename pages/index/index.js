@@ -2,10 +2,9 @@
  * 小鱼易连SDK示例程序-加入会议
  *
  * Created at     : 2022-11-16 19:51:33
- * Last modified  : 2022-11-29 23:36:37
+ * Last modified  : 2022-12-06 19:50:26
  */
 
-// import xylink from 'xylink-sdk/common/room.js';
 import XYRTC from '@xylink/xy-mp-sdk';
 import { showToast } from '../../utils/index';
 

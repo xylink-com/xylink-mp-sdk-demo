@@ -41,3 +41,7 @@
   padding: 0 10px;
   height: 36px;
 }
+
+.setting {
+  color: #3846ff;
+}
