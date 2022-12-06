@@ -128,8 +128,10 @@ Page({
   /**
    * 切换前后置摄像头
    */
-  onSwitchPosition() {
-    const position = this.XYClient.switchCamera();
+  async onSwitchPosition() {
+    const position = await this.XYClient.switchCamera();
+
+    console.log('switch camera position: ', position);
 
     this.setData({ devicePosition: position });
   },
