@@ -89,19 +89,18 @@ Page({
   /**
    * 小程序页面初次渲染完成时触发，可以和视图层交互
    */
-  onReady() {
+  async onReady() {
     const { number, password, displayName } = this.pageOption;
 
     // 发起SDK呼叫，通过回调获取结果
     // 此处请参考API文档，新版本新增其他配置参数
-    this.XYClient.makeCall(
-      {
-        number,
-        password,
-        displayName,
-      },
-      this.onGetCallStatus
-    );
+    const response = await this.XYClient.makeCall({
+      number,
+      password,
+      displayName,
+    });
+
+    this.onGetCallStatus(response);
   },
 
   /**

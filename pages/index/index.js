@@ -2,7 +2,7 @@
  * 小鱼易连SDK示例程序-加入会议
  *
  * Created at     : 2022-11-16 19:51:33
- * Last modified  : 2022-12-06 19:50:26
+ * Last modified  : 2022-12-10 21:19:31
  */
 
 import XYRTC from '@xylink/xy-mp-sdk';
