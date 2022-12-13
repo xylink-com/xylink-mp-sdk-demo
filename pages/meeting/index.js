@@ -111,8 +111,6 @@ Page({
    */
   onGetCallStatus(response) {
     console.log('call response: ', response);
-    // 标记入会状态
-    this.isInMeeting = true;
     const { code, message } = response;
 
     // 最新的逻辑仅需要处理异常呼叫入会即可，其他逻辑不需要再处理
@@ -158,8 +156,8 @@ Page({
    * 非UI组件模式下，需要调用client的hangup方法进行挂断会议操作
    */
   onStopMeeting() {
-    // 重置会议状态，避免重复退会
-    this.isInMeeting = false;
+    // 挂断会议
+    this.XYClient.hangup();
 
     wx.navigateBack({ delta: 1 });
   },
@@ -172,11 +170,6 @@ Page({
   disConnectMeeting(detail) {
     console.log('disConnectMeeting detail:', detail);
     const { message } = detail;
-
-    // 异常退会消息可能存在多个，需要拦截只进行一次退会处理即可
-    if (!this.isInMeeting) {
-      return;
-    }
 
     if (message) {
       // 存在message消息，则直接提示，默认3s后退会会议界面
