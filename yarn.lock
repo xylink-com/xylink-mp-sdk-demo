@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@xylink/xy-mp-sdk@^3.8.0":
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/@xylink/xy-mp-sdk/-/xy-mp-sdk-3.8.0.tgz#c9ca78426348508a3c4afec7331ef14743dad212"
-  integrity sha512-+eSaNKuMLWuO//mwBYaUOEDMDiazC0PAvkN76nUkmEyGo1sUatjVE5ghQjb1aafHuQssFXaYVsLYWP3rPvoYDQ==
+"@xylink/xy-mp-sdk@^3.8.1":
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/@xylink/xy-mp-sdk/-/xy-mp-sdk-3.8.1.tgz#bc22270d4956a3f31ade74a85e5d045194e6cacf"
+  integrity sha512-IXMWfHEo42ThkLqfkaCSBQa92t9M3IsgwGJv1ATXW/1o9DmZIdfbDYFDRIwM3mUXv8vTALue7Xq/yy4hDgv5Hw==
