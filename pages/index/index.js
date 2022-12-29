@@ -1,78 +1,144 @@
 /**
- * 小鱼易连SDK示例程序-加入会议
- *
- * Created at     : 2022-11-16 19:51:33
- * Last modified  : 2022-12-10 21:19:31
+ * 小程序示例 首页
+ * @authors Luo-jinghui (luojinghui424@gmail.com)
+ * @date  2018-12-29 17:26:35
  */
 
 import XYRTC from '@xylink/xy-mp-sdk';
-import { showToast } from '../../utils/index';
-
-const app = getApp();
+import { DEFAULT_SERVER, DEFAULT_EXTID, DEFAULT_APPID } from '../config';
 
 Page({
   data: {
-    meeting: {
-      number: '',
-      password: '',
-      displayName: '',
-      // 创建Token，详见文档：https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram
-      token: '',
-    },
     version: '',
+    // 入会信息
+    meeting: {
+      number: '915353622534',
+      password: '',
+      name: 'mp',
+    },
+    // SDK企业登录信息
+    externalLogin: {
+      extUserId: '',
+      displayName: '',
+    },
+    // Token登录信息
+    token: '',
+    // 是否关闭摄像头入会
+    videoMute: false,
+    // 是否关闭麦克风入会
+    audioMute: false,
+    // 登录方式：SDK企业账号登录、Token登录，推荐使用SDK企业账号登录，更方便
+    loginMode: 'sdk',
   },
-
-  /**
-   * 页面加载完成回调，初始化小鱼小程序SDK，创建SDK实例
-   */
   onLoad() {
     const { version, time } = XYRTC.version;
-    this.setData({ version: `v${version} - ${time}` });
+    const versionText = `${version} - build on ${time}`;
 
-    // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
-    this.XYClient = XYRTC.createClient();
+    this.setData({ version: versionText });
+
+    this.initSDK();
+  },
+
+  // 设置页面配置项可能改动，重新回到首页，重新初始化SDK
+  onShow() {
+    const loginMode = wx.getStorageSync('XY_LOGIN_MODE') || 'sdk';
+
+    this.setData({ loginMode });
+    this.initSDK();
+  },
+
+  initSDK() {
+    const server = wx.getStorageSync('XY_SERVER') || DEFAULT_SERVER;
+    const extId = wx.getStorageSync('XY_EXTID') || DEFAULT_EXTID;
+    const appId = wx.getStorageSync('XY_APPID') || DEFAULT_APPID;
+
+    this.XYClient = XYRTC.createClient({ report: true, extId, appId });
+    // 可选执行，设置SDK服务域名，默认可不需要调用
+    this.XYClient.setServer(server);
   },
 
   /**
-   * 登录&加入会议
+   * SDK两种登录方式：SDK企业账号登录、Token登录
+   *
+   * 建议使用SDK企业账号登录，使用方便，无需和服务打交道
    */
-  onJoin() {
-    const { token } = this.data.meeting;
+  async login() {
+    const { externalLogin, loginMode, token } = this.data;
 
-    if (!token) {
-      showToast('请填写Token');
+    // SDK企业账号登录
+    if (loginMode === 'sdk') {
+      const response = await this.XYClient.loginExternalAccount(externalLogin);
+
+      this.onGetCallNumber(response);
+    } else if (loginMode === 'token') {
+      // Token登录号
+      // 此处第三方开发者需要自行与服务器交互，获取Token
+      // 具体参见接口文档： https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram
+      const response = await this.XYClient.login(token);
+
+      this.onGetCallNumber(response);
+    }
+  },
+
+  switchEnv() {
+    wx.navigateTo({ url: '/pages/setting/index' });
+  },
+
+  // 执行初始化登录回调函数
+  onGetCallNumber(response) {
+    console.log('login response:', response);
+    // 状态是200时，初始化登录成功
+    if (response.code === 200 || response.code === 'XYSDK:980200') {
+      const cn = response.data.callNumber;
+
+      wx.setStorageSync('XY_CALL_NUMBER', cn);
+
+      this.XYClient.showToast('登录成功');
+    } else {
+      this.XYClient.showToast('登录失败，请稍后重试');
+    }
+  },
+
+  changeVideo(e) {
+    const { value } = e.detail;
+
+    this.setData({ videoMute: !!value[0] });
+  },
+
+  changeAudio(e) {
+    const { value } = e.detail;
+
+    this.setData({ audioMute: !!value[0] });
+  },
+
+  /**
+   * 加入会议
+   */
+  onJoinMeeting() {
+    // 没有callNumber，则需要进行login操作
+    const callNumber = wx.getStorageSync('XY_CALL_NUMBER');
+
+    // 如果本地没有callNumber字段，则认为没有登录操作。需要提示进行初始化登录
+    if (!callNumber) {
+      this.XYClient.showToast('请先登录');
       return;
     }
 
-    // 获取Token参见文档： https://openapi.xylink.com/common/meeting/doc/miniprogram_server?platform=miniprogram#h0613ccc-jN2Ef3V7
-    // 第一步：登录
-    this.XYClient.login(token, this.onCallbackGetNumber);
-  },
+    const { name, password, number } = this.data.meeting;
+    const { videoMute, audioMute } = this.data;
 
-  /**
-   * SDK登录回调函数
-   *
-   * @param { * } res - 登录回调结果
-   */
-  onCallbackGetNumber(res) {
-    // 状态是200时，初始化登录成功
-    console.log('login callback: ', res);
-
-    if (res.code === 200) {
-      // 将登录得到的用户信息存储到本地，会议页面可能需要用到
-      wx.setStorageSync('XY_User_Info', res.data);
-
-      this.callNumber = res.data.callNumber;
-
-      // 登录成功后，开始加入会议
-      this.joinMeeting();
-    } else {
-      showToast('登录失败，请检查');
+    if (!number) {
+      this.XYClient.showToast('会议号不能为空');
+      return;
     }
+
+    wx.navigateTo({
+      url: `/pages/meeting/index?displayName=${name}&password=${password}&number=${number}&videoMute=${videoMute}&audioMute=${audioMute}`,
+    });
   },
 
   /**
-   * 监听输入
+   * 入会信息
    */
   bindFromInput(e) {
     const type = e.target.id;
@@ -82,26 +148,22 @@ Page({
   },
 
   /**
-   * 加入会议
+   * Token登录
    */
-  joinMeeting() {
-    const { displayName, password, number } = this.data.meeting;
+  bindFromTokenInput(e) {
+    const value = e.detail.value;
 
-    if (!this.callNumber || !number) {
-      showToast('请检查入会参数');
-      return;
-    }
-
-    // 跳转会议页面
-    wx.navigateTo({
-      url: `/pages/meeting/index?displayName=${displayName}&password=${password}&number=${number}`,
-    });
+    this.setData({ token: value });
   },
 
   /**
-   * 设置
+   * SDK企业登录信息
    */
-  switchSetting() {
-    wx.navigateTo({ url: '/pages/setting/index' });
+  bindFromExternalInput(e) {
+    const nextData = Object.assign({}, this.data.externalLogin, {
+      [e.target.id]: e.detail.value,
+    });
+
+    this.setData({ externalLogin: nextData });
   },
 });

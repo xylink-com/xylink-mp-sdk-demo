@@ -1,9 +1,8 @@
 import XYRTC from '@xylink/xy-mp-sdk';
-import { defaultServer } from './config';
+import { DEFAULT_APPID, DEFAULT_EXTID, DEFAULT_SERVER } from '../config';
 
 Page({
   data: {
-    server: defaultServer,
     version: '',
     layoutModes: [
       {
@@ -15,59 +14,105 @@ Page({
         name: '自定义布局',
       },
     ],
+    loginModes: [
+      {
+        value: 'sdk',
+        name: 'SDK企业账号登录',
+      },
+      {
+        value: 'token',
+        name: 'Token登录',
+      },
+    ],
     layoutMode: 'auto',
+    loginMode: 'sdk',
+    server: DEFAULT_SERVER,
+    appId: DEFAULT_APPID,
+    extId: DEFAULT_EXTID,
   },
-
+  // 页面加载
   onLoad() {
     this.XYClient = XYRTC.getClient();
     const { version, time } = XYRTC.version;
-    const versionText = `${version} - ${time}`;
-    const layoutMode = wx.getStorageSync('XY_LAYOUT_MODE') || 'auto';
-    const server = wx.getStorageSync('XY_SERVER') || defaultServer;
 
-    this.setData({ version: versionText, layoutMode, server });
-  },
+    const versionText = `${version} - build on ${time}`;
 
-  // 监听输入
-  bindFromInput(e) {
-    const value = e.detail.value;
-
-    this.setData({ server: value });
-  },
-
-  update() {
-    if (!this.data.server) {
-      wx.showToast({
-        title: '请输入服务器地址',
-        icon: 'none',
-        duration: 2000,
-        mask: true,
-      });
-
-      return;
-    }
-
-    // xyClient是全局页面共享实例，此处直接设置server值即可
-    this.XYClient.setServer(this.data.server);
-
-    wx.setStorageSync('XY_SERVER', this.data.server);
-
-    wx.showToast({
-      title: '修改成功',
-      icon: 'success',
-      duration: 2000,
-      mask: true,
+    // 更新历史配置信息
+    this.setData({
+      version: versionText,
+      server: wx.getStorageSync('XY_SERVER') || DEFAULT_SERVER,
+      extId: wx.getStorageSync('XY_EXTID') || DEFAULT_EXTID,
+      appId: wx.getStorageSync('XY_APPID') || DEFAULT_APPID,
+      layoutMode: wx.getStorageSync('XY_LAYOUT_MODE') || 'auto',
+      loginMode: wx.getStorageSync('XY_LOGIN_MODE') || 'sdk',
     });
   },
 
-  reset() {
-    this.setData({ server: defaultServer });
+  onReady() {},
+
+  bindFromServerInput(e) {
+    this.bindFromInput(e, 'server');
   },
 
+  bindFromExtIdInput(e) {
+    this.bindFromInput(e, 'extId');
+  },
+
+  bindFromAppIdInput(e) {
+    this.bindFromInput(e, 'appId');
+  },
+
+  // 监听输入
+  bindFromInput(e, key) {
+    const value = e.detail.value;
+
+    this.setData({ [key]: value });
+  },
+
+  // 更新服务域名、APPID、EXTID信息
+  update() {
+    if (!this.data.server) {
+      this.XYClient.showToast('请输入服务器地址');
+      return;
+    }
+
+    this.XYClient.setServer(this.data.server);
+    this.XYClient.showToast('修改成功');
+
+    // 存储下来，后续读取此配置
+    wx.setStorageSync('XY_APPID', this.data.appId);
+    wx.setStorageSync('XY_EXTID', this.data.extId);
+    wx.setStorageSync('XY_SERVER', this.data.server);
+  },
+
+  /**
+   * 重新配置信息
+   */
+  reset() {
+    this.setData({
+      server: DEFAULT_SERVER,
+      appId: DEFAULT_APPID,
+      extId: DEFAULT_EXTID,
+    });
+  },
+
+  /**
+   * 更新布局模式
+   */
   radioChange(e) {
     const { value = 'auto' } = e.detail || {};
 
     this.setData({ layoutMode: value });
     wx.setStorageSync('XY_LAYOUT_MODE', value);
+  },
+
+  /**
+   * 更新登录模式
+   */
+  loginChange(e) {
+    const { value = 'sdk' } = e.detail || {};
+
+    this.setData({ loginMode: value });
+    wx.setStorageSync('XY_LOGIN_MODE', value);
   },
 });

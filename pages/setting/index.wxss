@@ -1,15 +1,13 @@
-.container {
+.setting-container {
   width: 100%;
-  padding: 0 20px;
+  padding: 0PX 20px 20PX;
   box-sizing: border-box;
   font-size: 14PX;
 }
-
 .setting-title{
   font-size: 16PX;
   margin-top: 30PX;
 }
-
 .form-input {
   border: 1px solid #ddd;
   font-size: 15PX;
@@ -35,11 +33,8 @@
 }
 
 .version{
-  text-align: center;
+  width: 100%;
   font-size: 12PX;
   color: rgba(0, 0, 0, 0.6);
-  position: fixed;
-  bottom: 30PX;
-  width: calc(100% - 40PX);
-  box-sizing: border-box;
+  margin: 10PX 0;
 }
