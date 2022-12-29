@@ -1,22 +1,55 @@
-<!--index.wxml-->
+<!-- index.wxml -->
 <view class="container">
-	<view class="header">
-		<view class="title">小鱼易连SDK示例程序</view>
-		<view class="version">{{ version }}</view>
-		<view bindtap="switchSetting" class="setting">设置</view>
-	</view>
+	<view class="title">示例SDK小程序</view>
+	<view class="version">{{ version }}</view>
+	<view bindtap="switchEnv" class="setting">设置</view>
 
-	<view class="form">
+	<!-- Token登录 -->
+	<view class="form" wx:if='{{ loginMode === "token" }}'>
 		<view class="form-group">
 			<input
 			 class="form-input"
 			 id="token"
-			 value="{{ meeting.token }}"
+			 value="{{ token }}"
 			 type="text"
-			 bindinput="bindFromInput"
-			 placeholder="Token"
+			 bindinput="bindFromTokenInput"
+			 placeholder="输入token"
 			/>
 		</view>
+		<view class="from-grop">
+			<button type="primary" bindtap="login">Token登录</button>
+		</view>
+	</view>
+
+	<!-- SDK企业登录 -->
+	<view class="form" wx:if='{{ loginMode === "sdk" }}'>
+		<view class="form-group">
+			<input
+			 class="form-input"
+			 id="extUserId"
+			 value="{{ externalLogin.extUserId }}"
+			 type="text"
+			 bindinput="bindFromExternalInput"
+			 placeholder="输入三方UserId"
+			/>
+		</view>
+		<view class="form-group">
+			<input
+			 class="form-input"
+			 id="displayName"
+			 value="{{ externalLogin.displayName }}"
+			 type="text"
+			 bindinput="bindFromExternalInput"
+			 placeholder="输入三方用户名"
+			/>
+		</view>
+		<view class="from-grop">
+			<button type="primary" bindtap="login">SDK企业登录</button>
+		</view>
+	</view>
+
+	<!-- 加入会议 -->
+	<view class="form">
 		<view class="form-group">
 			<input
 			 class="form-input"
@@ -31,24 +64,39 @@
 			<input
 			 class="form-input"
 			 id="password"
+			 value="{{ meeting.password }}"
 			 type="text"
 			 bindinput="bindFromInput"
-			 placeholder="入会密码（非必填）"
+			 placeholder="入会密码"
 			/>
 		</view>
 		<view class="form-group">
 			<input
 			 class="form-input"
-			 id="displayName"
-			 value="{{ meeting.displayName }}"
+			 id="name"
+			 value="{{ meeting.name }}"
 			 type="text"
 			 bindinput="bindFromInput"
 			 placeholder="入会名称"
 			/>
 		</view>
-
-		<view class="from-grop">
-			<button type="primary" bindtap="onJoin">立即入会</button>
+		<!-- 会议配置 -->
+		<view class="form-group">
+			<label class="form-checkbox">
+				<checkbox-group bindchange="changeVideo">
+					<checkbox value="1" checked="{{videoMute}}" />
+					入会时关闭摄像头
+				</checkbox-group>
+			</label>
+			<label class="form-checkbox">
+				<checkbox-group bindchange="changeAudio">
+					<checkbox value="2" checked="{{audioMute}}" />
+					入会时静音
+				</checkbox-group>
+			</label>
+		</view>
+		<view class="form-group">
+			<button type="primary" bindtap="onJoinMeeting">立即入会</button>
 		</view>
 	</view>
 </view>

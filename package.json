@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@xylink/xy-mp-sdk": "^3.8.1"
+    "@xylink/xy-mp-sdk": "^3.8.2"
   }
 }

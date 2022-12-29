@@ -5,7 +5,6 @@
  * @date  2019-06-01 23:04:27
  */
 import XYRTC from '@xylink/xy-mp-sdk';
-import { showToast } from '../../utils/index';
 import { CUSTOM_TEMPLATE } from './template';
 
 Page({
@@ -19,7 +18,7 @@ Page({
     // 呼叫Loading
     meetingLoading: true,
     // 是否是等候室状态
-    onHold: true,
+    onHold: false,
 
     // 此处没有读取设置页面的值，是因为小程序data值会全局缓存，退出在进入后仍然获取上一次的值，解决办法是在onLoad上重新赋值
     // 指定SDK UI布局模式，可选auto：自动布局 ｜ custom：自定义布局
@@ -38,26 +37,7 @@ Page({
   onLoad(option) {
     this.pageOption = option;
     const layoutMode = wx.getStorageSync('XY_LAYOUT_MODE') || 'auto';
-
-    // 设置默认值
-    this.setData({
-      template: { layout: layoutMode, detail: [] },
-      muted: false,
-      camera: true,
-      onHold: false,
-      devicePosition: 'front',
-      displayName: option.displayName,
-    });
-
-    // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
-    this.XYClient = XYRTC.createClient({
-      // 配置画面容器偏移量：上：0px，下：40px，左右：0px
-      // 目的是排除底部40px空间，显示操作条
-      container: { offset: [0, 40, 0, 0] },
-    });
-
-    this.userInfo = this.XYClient.getUserInfo();
-    const { callNumber = '' } = this.userInfo;
+    this.callNumber = wx.getStorageSync('XY_CALL_NUMBER');
 
     // 自定义布局，设置初始本地Local预览画面和启动推流
     if (layoutMode === 'custom') {
@@ -69,7 +49,7 @@ Page({
             {
               // 最终转换为x: 0vw, y: 0vh, width: 100vw, height: 85vh
               position: [0, 0, 100, 85],
-              callNumber,
+              callNumber: this.callNumber,
               name: this.pageOption.displayName || '',
               quality: 'normal',
               isContent: false,
@@ -81,15 +61,16 @@ Page({
   },
 
   /**
-   * 页面卸载时触发
-   */
-  onUnload() {},
-
-  /**
    * 小程序页面初次渲染完成时触发，可以和视图层交互
    */
   async onReady() {
-    const { number, password, displayName } = this.pageOption;
+    const { number, password, displayName, videoMute, audioMute } = this.pageOption;
+
+    // XYRTC.createClient()创建了一个单例对象client，在多个小程序页面之间共享一个实例，可以重复调用获取最新的实例；
+    this.XYClient = XYRTC.createClient({
+      // 目的是排除底部40px空间，显示操作条
+      container: { offset: [0, 40, 0, 0] },
+    });
 
     // 发起SDK呼叫，通过回调获取结果
     // 此处请参考API文档，新版本新增其他配置参数
@@ -100,6 +81,14 @@ Page({
     });
 
     this.onGetCallStatus(response);
+
+    // 设置默认值
+    this.setData({
+      muted: audioMute === 'true',
+      camera: !(videoMute === 'true'),
+      devicePosition: 'front',
+      displayName,
+    });
   },
 
   /**
@@ -115,7 +104,7 @@ Page({
 
     // 最新的逻辑仅需要处理异常呼叫入会即可，其他逻辑不需要再处理
     if (code !== 200) {
-      showToast(message, () => {
+      this.XYClient.showToast(message, () => {
         // 退出呼叫页面
         wx.navigateBack({ delta: 1 });
       });
@@ -127,8 +116,6 @@ Page({
    */
   async onSwitchPosition() {
     const position = await this.XYClient.switchCamera();
-
-    console.log('switch camera position: ', position);
 
     this.setData({ devicePosition: position });
   },
@@ -144,9 +131,7 @@ Page({
    * 开启/关闭摄像头
    */
   onSwitchCamera() {
-    this.setData({
-      camera: !this.data.camera,
-    });
+    this.setData({ camera: !this.data.camera });
   },
 
   /**
@@ -171,7 +156,7 @@ Page({
     if (message) {
       // 存在message消息，则直接提示，默认3s后退会会议界面
       // 注意此处的message可以直接用做展示使用，不需要开发者再进行错误码的匹配
-      showToast(message, () => {
+      this.XYClient.showToast(message, () => {
         this.onStopMeeting();
       });
     } else {
@@ -267,6 +252,11 @@ Page({
     }
   },
 
+  /**
+   * 自定义布局，处理模板计算
+   *
+   * @param { * } detail - roster事件数据
+   */
   handleCustomLayout(detail) {
     // 处理custom模式自定义布局
     const newDetails = [];
@@ -280,7 +270,7 @@ Page({
 
     const selfDetailObj = {
       position: CUSTOM_TEMPLATE[len].self,
-      callNumber: this.userInfo.callNumber,
+      callNumber: this.callNumber,
       name: this.pageOption.displayName,
       quality: 'normal',
       isContent: false,

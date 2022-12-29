@@ -1,7 +1,10 @@
 <!-- index.wxml -->
-<view class="container">
-	<view class="setting-title">设置布局模式</view>
+<view class="setting-container">
+	<view class="setting-title">设置</view>
 
+	<view class="version">版本：{{version}}</view>
+
+	<view class="setting-title">设置布局模式</view>
 	<radio-group class="form-audio-group" bindchange="radioChange">
 		<label class="form-audio" wx:for="{{layoutModes}}" wx:key="value">
 			<view>
@@ -11,20 +14,45 @@
 		</label>
 	</radio-group>
 
-	<view class="setting-title">设置服务器地址</view>
+	<view class="setting-title">设置登录方式</view>
+	<radio-group class="form-audio-group" bindchange="loginChange">
+		<label class="form-audio" wx:for="{{loginModes}}" wx:key="value">
+			<view>
+				<radio value="{{item.value}}" checked="{{item.value === loginMode}}" />
+			</view>
+			<view>{{item.name}}</view>
+		</label>
+	</radio-group>
+
+	<view class="setting-title">配置环境</view>
+	<label>企业ID</label>
+	<input
+	 class="form-input"
+	 id="number"
+	 value="{{extId}}"
+	 type="text"
+	 bindinput="bindFromExtIdInput"
+	/>
+
+	<label>APPID</label>
+	<input
+	 class="form-input"
+	 id="number"
+	 value="{{appId}}"
+	 type="text"
+	 bindinput="bindFromAppIdInput"
+	/>
+
+	<label>服务器地址</label>
 	<input
 	 class="form-input"
 	 id="number"
 	 value="{{server}}"
 	 type="text"
-	 bindinput="bindFromInput"
+	 bindinput="bindFromServerInput"
 	/>
 
-	<view class="setting-title">
-		<button class="btn" type="primary" bindtap="update">确认修改</button>
-		<button class="btn" type="default" bindtap="reset">恢复默认值</button>
-	</view>
-
-	<view class="version">版本：{{version}}</view>
+	<button class="btn" type="primary" bindtap="update">确认修改</button>
+	<button class="btn" type="default" bindtap="reset">恢复默认值</button>
 </view>
 
