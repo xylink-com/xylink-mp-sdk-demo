@@ -246,6 +246,14 @@ Page({
         console.log('demo get speakersInfo message：', detail);
 
         break;
+      case 'networkParameter':
+        // 网络质量等级
+        console.log('networkParameter msg:', detail);
+        break;
+      case 'networkLevel':
+        console.log('networkLevel msg:', detail);
+
+        break;
       default: {
         console.log('demo get other message: ', event.detail);
       }
