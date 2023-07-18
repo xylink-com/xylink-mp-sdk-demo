@@ -30,7 +30,8 @@
     "useMultiFrameRuntime": true,
     "bundle": false,
     "useApiHook": true,
-    "useApiHostProcess": true
+    "useApiHostProcess": true,
+    "condition": false
   },
   "compileType": "miniprogram",
   "libVersion": "2.7.1",

@@ -72,6 +72,8 @@ Page({
       container: { offset: [0, 40, 0, 0] },
     });
 
+    // this.XYClient.setDebug(true, true);
+
     // 发起SDK呼叫，通过回调获取结果
     // 此处请参考API文档，新版本新增其他配置参数
     const response = await this.XYClient.makeCall({
