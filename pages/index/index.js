@@ -29,6 +29,8 @@ Page({
     audioMute: false,
     // 登录方式：SDK企业账号登录、Token登录，推荐使用SDK企业账号登录，更方便
     loginMode: 'sdk',
+    //登录状态
+    loginStatus: false,
   },
   onLoad() {
     const { version, time } = XYRTC.version;
@@ -80,6 +82,18 @@ Page({
     }
   },
 
+  // 退出登录
+  logout(){
+    wx.setStorageSync('XY_CALL_NUMBER', '');
+    this.setData({
+      loginStatus:false, 
+        externalLogin: {
+        extUserId: '',
+        displayName: '',
+      },
+    token:''})
+  },
+
   switchEnv() {
     wx.navigateTo({ url: '/pages/setting/index' });
   },
@@ -92,7 +106,7 @@ Page({
       const cn = response.data.callNumber;
 
       wx.setStorageSync('XY_CALL_NUMBER', cn);
-
+      this.setData({loginStatus:true})
       this.XYClient.showToast('登录成功');
     } else {
       this.XYClient.showToast('登录失败，请稍后重试');
@@ -102,13 +116,12 @@ Page({
   changeVideo(e) {
     const { value } = e.detail;
 
-    this.setData({ videoMute: !!value[0] });
+    this.setData({ videoMute: !!value });
   },
 
   changeAudio(e) {
     const { value } = e.detail;
-
-    this.setData({ audioMute: !!value[0] });
+    this.setData({ audioMute: !!value });
   },
 
   /**
@@ -145,6 +158,13 @@ Page({
     const value = e.detail.value;
 
     this.setData({ meeting: { ...this.data.meeting, [type]: value } });
+  },
+
+  /**
+   * 清除会议号
+   */
+  clearMeetingNum(){
+    this.setData({ meeting: { ...this.data.meeting, number: '' } });
   },
 
   /**

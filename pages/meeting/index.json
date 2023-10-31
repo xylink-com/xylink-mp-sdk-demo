@@ -8,5 +8,5 @@
   "disableScroll": true,
   "disableSwipeBack": true,
   "pageOrientation": "landscape",
-  "navigationStyle": "default"
+  "navigationStyle": "custom"
 }
