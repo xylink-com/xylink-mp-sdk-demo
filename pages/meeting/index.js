@@ -326,6 +326,7 @@ Page ({
       case 'confMgmt':
         // 会控消息
         console.log ('demo get 会控消息：', detail);
+        
         const {muteOperation, disableMute} = detail;
         this.showAudioStatus (muteOperation, disableMute);
         break;
