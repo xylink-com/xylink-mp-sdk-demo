@@ -366,7 +366,7 @@ Page ({
         break;
       case 'content':
         // 当前共享content的参会者信息
-        console.log ('meetingStats msg:', detail);
+        console.log ('content msg:', detail);
         this.data.content = detail || {};
         break;
       default: {
@@ -598,17 +598,17 @@ Page ({
    *
    */
   handleNetInfo (detail) {
+    if(detail){
     let receiveNetJitter = 0;
     let receiveBitrate = 0;
 
     const data = {
-      detectionList:[{}],
+      detectionList:[],
       memberList:[]
     }
 
-    Object.keys (detail).forEach (key => {
-      const item = data[key];
-
+    Object.keys(detail).forEach (key => {
+      const item = detail[key]||{};
       const {info, userId, displayName} = item;
       const {
         netJitter,
@@ -639,7 +639,7 @@ Page ({
     });
 
     data.detectionList.push({type: '接收', netJitter: receiveNetJitter, bitrate: receiveBitrate},)
-
-    this.setData ({netInfoDetail: detail});
-  },
+    this.setData ({netInfoDetail: data});
+  }
+}
 });
