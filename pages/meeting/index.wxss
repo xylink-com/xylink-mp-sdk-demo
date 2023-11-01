@@ -16,25 +16,6 @@
   font-size: 16px;
 }
 
-.xylink-operate-box {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  height: 40px;
-  background-color: rgba(0, 0, 0, 0.8);
-
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  font-size: 14px;
-  z-index: 100;
-}
-
-.xy-translate {
-  display: block;
-}
-
 .xy__call {
   z-index: 100;
   position: fixed;
@@ -69,8 +50,7 @@
   bottom: 0;
   left: 0;
   box-sizing: border-box;
-  padding: 0 40PX;
-  padding-top: 10PX;
+  padding: 10PX 40PX 0;
   padding-bottom: calc(10PX + constant(safe-area-inset-bottom)/2);
   padding-bottom: calc(10PX + env(safe-area-inset-bottom)/2);
   width: 100vw;
@@ -89,7 +69,6 @@
   height: 40px;
   z-index: 999;
   background-color: #202123;
-
 }
 
 .xy__operate-signal {
@@ -170,9 +149,6 @@
   width: 20PX;
   height: 20PX;
 }
-
-
-
 
 .dawer_compontents {
   position: fixed;
@@ -270,7 +246,6 @@
 
 .drawer_participant_search {
   position: relative;
-  /* width: 100%; */
 }
 
 .drawer_participant_search_input {
@@ -281,7 +256,6 @@
   border-radius: 108rpx;
   color: rgba(57, 57, 70, .8);
   background: #f8f9fa;
-  /* margin: 12PX 0; */
   padding-left: 16PX;
   padding-right: 30PX;
 }
@@ -326,13 +300,13 @@
 }
 .drawer_participant_item{
   width: 100%;
-    height: 48PX;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    box-sizing: border-box;
+  height: 48PX;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  box-sizing: border-box;
 }
-.drawer__participant-avatar {
+.drawer-participant-avatar {
   position: relative;
   width: 32PX;
   height: 32PX;
@@ -362,38 +336,35 @@
   line-height: 12PX;
   font-size: 7PX;
 }
-.drawer__participant-name{
+.drawer-participant-name{
   flex: 1;
     font-size: 12PX;
     line-height: 20PX;
     color: rgba(57, 57, 70, 0.8);
     overflow: hidden;
 }
-.drawer__participant-name-info{
+.drawer-participant-name-info{
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.drawer__participant-name-status {
+.drawer-participant-name-status {
   font-size: 10PX;
   line-height: 14PX;
   color: #3876FF;
 }
-.drawer__participant-status {
+.drawer-participant-status {
   display: flex;
   align-items: center;
 }
-.drawer__participant-status-item_image {
+.drawer-participant-status-item_image {
   width: 22PX;
   height: 22PX;
 }
-.drawer__participant-status-item {
+.drawer-participant-status-item {
   margin-left: 12PX;
 }
-
-
-
 
 .dawer_info.dawer_info_show_bottom {
   bottom: 0px

@@ -92,26 +92,26 @@
             </view>
 
             <view wx:for="{{filterRosterList}}" wx:key="item.id" class="drawer_participant_item">
-              <view class="drawer__participant-avatar">
+              <view class="drawer-participant-avatar">
                 <image class="icon-avatar" src="{{item.avatar}}"></image>
                 <view wx:if="{{item.isLocal}}" class="icon-status icon-me">我</view>
                 <image wx:elif="{{item.isActiveSpeaker && !item.audioTxMute}}" class="icon-status" src="../../static/images/operate/icon_speaker.gif"></image>
               </view>
 
-              <view class="drawer__participant-name">
-                <view class="drawer__participant-name-info">
+              <view class="drawer-participant-name">
+                <view class="drawer-participant-name-info">
                   {{ item.displayName }}
                 </view>
-                <view class="drawer__participant-name-status" wx:if="{{item.isContentOnly}}">仅桌面共享</view>
-                <view class="drawer__participant-name-status" wx:if="{{!item.isContentOnly && item.isContent}}">正在共享...</view>
+                <view class="drawer-participant-name-status" wx:if="{{item.isContentOnly}}">仅桌面共享</view>
+                <view class="drawer-participant-name-status" wx:if="{{!item.isContentOnly && item.isContent}}">正在共享...</view>
               </view>
-              <view class="drawer__participant-status">
-                <view class="drawer__participant-status-item">
-                  <image class="drawer__participant-status-item_image" src="{{item.audioTxMute ? '../../static/images/operate/icon_mic_mute.png' : '../../static/images/operate/icon_mic.png'}}">
+              <view class="drawer-participant-status">
+                <view class="drawer-participant-status-item">
+                  <image class="drawer-participant-status-item_image" src="{{item.audioTxMute ? '../../static/images/operate/icon_mic_mute.png' : '../../static/images/operate/icon_mic.png'}}">
                   </image>
                 </view>
-                <view class="drawer__participant-status-item">
-                  <image class="drawer__participant-status-item_image" src="{{item.videoTxMute ? '../../static/images/operate/icon_camera_mute.png' : '../../static/images/operate/icon_camera.png'}}">
+                <view class="drawer-participant-status-item">
+                  <image class="drawer-participant-status-item_image" src="{{item.videoTxMute ? '../../static/images/operate/icon_camera_mute.png' : '../../static/images/operate/icon_camera.png'}}">
                   </image>
                 </view>
               </view>

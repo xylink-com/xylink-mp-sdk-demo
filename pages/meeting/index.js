@@ -10,7 +10,7 @@ import {audioUnmuteIcon, audioMuteIcon, handUpIcon,handDownIcon,DEVICE_TYPE_MAP}
 
 Page ({
   data: {
-    // 设备ID
+    // 当前设备ID
     localCallUri:'',
     // 共享信息
     content:{},

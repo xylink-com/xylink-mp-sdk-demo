@@ -43,6 +43,11 @@ Page({
 
   // 设置页面配置项可能改动，重新回到首页，重新初始化SDK
   onShow() {
+    // 配置项改动后需要重新弄登录
+    const callNumber = wx.getStorageSync('XY_CALL_NUMBER');
+    if(!callNumber){
+      this.logout()
+    }
     const loginMode = wx.getStorageSync('XY_LOGIN_MODE') || 'sdk';
 
     this.setData({ loginMode });

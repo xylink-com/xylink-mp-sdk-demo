@@ -1,8 +1,8 @@
 <!-- index.wxml -->
 <view>
-  <view bindtap="switchEnv" class="setting">
+  <view class="setting">
     <view wx:if="{{loginStatus}}" catchtap="logout" class="logout">退出登录</view>
-    设置
+    <view  bindtap="switchEnv">设置</view>
   </view>
   <!-- 登录 -->
   <view class="container" wx:if="{{!loginStatus}}">
