@@ -1,69 +1,75 @@
 <!-- index.wxml -->
 <view class="xylink-container">
-  <view hidden="{{ onHold }}">
-    <!-- 呼叫Loading -->
-    <view class="xylink-loading" wx:if="{{ meetingLoading }}">呼叫中...</view>
+<!-- 呼叫Loading -->
+  <view class="xylink-loading" wx:if="{{ meetingLoading }}">
+    <view class="xylink-user-photo">
+    <image  src="../../static/images/device/noicon.png" class="img" />  
+    </view>
+    <view class="xy__call-name">视频通话邀请中...</view>
+    <view class="xy__call-end" bindtap="onStopMeeting">
+        <image src="../../static/images/action_hangup.png" class="img" />
+    </view>
+  </view>
 
-    <!-- 会议操作条 -->
-    <view wx:else>
-      <view class="xylink-operate-left">
-        <view class="['xy__operate-btn xy__operate-btn-click', {{!camera ? 'xy__operate-btn-disabled' : ''}}]" bindtap="onSwitchPosition">
-          <image class="icon" src="../../static/images/icon_switch.png" />
-          <view class="xy__operate-font">翻转</view>
-        </view>
+  <!-- 会议操作条 -->
+  <view wx:if="{{!onHold && !meetingLoading}}" class="['xylink-operate-left',{{showOperateBar?'':'xy__operate-left-hidden'}}]">
+    <view class="['xy__operate-btn xy__operate-btn-click', {{!camera ? 'xy__operate-btn-disabled' : ''}}]" bindtap="onSwitchPosition">
+      <image class="icon" src="../../static/images/icon_switch.png" />
+      <view class="xy__operate-font">翻转</view>
+    </view>
 
-        <view bindtap="onChangeMuted" class="xy__operate-btn xy__operate-btn-click">
-          <image class="icon" src="{{audioData.img}}" />
-          <view class="xy__operate-font">{{ audioData.text}}</view>
-        </view>
-        <view bindtap="onSwitchCamera" class="xy__operate-btn xy__operate-btn-click">
-          <image class="icon" src="{{camera ? '../../static/images/video_mute.png' : '../../static/images/video_unmute.png'}}" />
-          <view class="xy__operate-font">{{ camera ? "关闭视频" : "开启视频" }}</view>
-        </view>
+    <view bindtap="onChangeMuted" class="xy__operate-btn xy__operate-btn-click">
+      <image class="icon" src="{{audioData.img}}" />
+      <view class="xy__operate-font">{{ audioData.text}}</view>
+    </view>
+    <view bindtap="onSwitchCamera" class="xy__operate-btn xy__operate-btn-click">
+      <image class="icon" src="{{camera ? '../../static/images/video_mute.png' : '../../static/images/video_unmute.png'}}" />
+      <view class="xy__operate-font">{{ camera ? "关闭视频" : "开启视频" }}</view>
+    </view>
 
-        <view class="xy__operate-btn xy__operate-btn-click" bindtap="onChangeRosterShowStatus">
-          <image class="icon" src="../../static/images/icon_participant.png" />
-          <view class="xy__operate-font">参会者（{{ total > 9999 ? 9999 + '+' : total }}）</view>
-        </view>
-        <view bindtap="onStopMeeting" class="xy__operate-end">挂断</view>
-      </view>
+    <view class="xy__operate-btn xy__operate-btn-click" bindtap="onChangeRosterShowStatus">
+      <image class="icon" src="../../static/images/icon_participant.png" />
+      <view class="xy__operate-font">参会者（{{ total > 9999 ? 9999 + '+' : total }}）</view>
+    </view>
+    <view bindtap="onStopMeeting" class="xy__operate-end">挂断</view>
+  </view>
+
       <view class="xylink-operate-right">
-        <view wx:if="!onHold" class="xy__operate-signal" bindtap="onShowNetInfo">
+        <view wx:if="{{!onHold&&!meetingLoading}}" class="xy__operate-signal" bindtap="onShowNetInfo">
           <image class="xy__operate-signal_image" src="../../static/images/signal/signal_{{localNetworkLevel}}.svg" />
         </view>
 
-        <view wx:if="!onHold" class="xy__operate-time">
+        <view wx:if="{{!onHold&&!meetingLoading}}" class="xy__operate-time">
           {{ meetingTime }}
         </view>
 
-        <view class="xy__operate-btn xy__operate-info">
+        <view wx:if="{{!onHold&&!meetingLoading}}" class="xy__operate-btn xy__operate-info" bindtap="onChangeinviteSatus">
           <view class="xy__operate-number">
-            {{ meetingInfo.displayName }}
+            {{ meetingInfo.displayName||meetingNum }}
           </view>
-          <view class="info-btn" wx:if="!onHold" bindtap="onChangeinviteSatus">
+          <view class="info-btn" wx:if="{{!onHold&&!meetingLoading}}" >
             <image class="info-icon" src="../../static/images/icon_info.png" />
           </view>
         </view>
       </view>
-    </view>
 
     <!-- 会议信息 -->
     <view>
       <view wx:if="{{inviteInfoShow}}" bindtap="onChangeinviteSatus" class='dawer_compontents'></view>
       <view class="{{inviteInfoShow ? 'dawer_info dawer_info_bottom dawer_info_show_bottom' : 'dawer_info dawer_info_bottom'}}">
         <view class="draw_tip" bindtap='onChangeinviteSatus'></view>
-        <view class="draw_title">{{meetingInfo.displayName}}</view>
+        <view class="draw_title">{{meetingInfo.displayName||meetingNum}}</view>
         <view class="draw_line"></view>
         <view class="dawer_item">
           <view class="drawer_info_title">会议号</view>
           <view class="drawer_info-number">
-            {{ meetingInfo.callNumber }}
+            {{ meetingInfo.callNumber||meetingNum }}
             <view class="drawer_info-btn" data-tip='会议号已复制到剪贴版中' data-data='{{ meetingInfo.callNumber }}' bindtap="copyText">
               <image class="drawer_info-copy" src="../../static/images/icon_copy.png"></image>
             </view>
           </view>
         </view>
-        <view class="dawer_item">
+        <view class="dawer_item" wx:if="{{meetingInfo.inviteInfo.shareUrl}}">
           <view class="drawer_info_title">会议链接</view>
           <view class="drawer_info-number">
             {{ meetingInfo.inviteInfo.shareUrl }}
@@ -164,17 +170,36 @@
       </view>
     </view>
 
-<view>1234567890-{{audioData.type}}</view>
-    <!-- 小鱼小程序SDK UI组件 -->
-    <xylink-room template="{{ template }}" beauty="{{ 6 }}" muted="{{audioMuted}}" camera="{{camera}}" devicePosition="{{ devicePosition }}" backgroundImage="" id="xylink" bindonRoomEvent="onRoomEvent" />
-  </view>
-
   <!-- 等候室状态，不显示画面，没有等候室需求，可以不添加 -->
-  <view wx:if="{{ onHold }}" bindtap="onClickContent" class="xy__call">
+  <view wx:if="{{ onHold }}" class="xy__call">
     <view class="xy__call-box">
-      <view class="xy__call-person-name">{{ displayName }}</view>
-      <view class="xy__call-person-status" bindtap="onHoldScreen">等待入会中，稍后主持人会邀请您加入</view>
+      <view class="xy__call-person-status">
+          请稍等，主持人稍后邀请您入会
+        </view>
+        <view class="xy__call-person-title">
+          会议主题
+        </view>
+        <view class="xy__call-person-conference">
+          {{ meetingTitle.title }}
+        </view>
+        <view class="xy__call-person-operate">
+          <image
+          bindtap="onSwitchholdCamera"
+            src="{{holdCamera ? '../../static/images/waiting/videoMute.png' : '../../static/images/waiting/videoUnmute.png'}}"
+           ></image>
+          <image
+          bindtap="onSwitchHandAudio"
+            src="{{holdAudioMuted ? '../../static/images/waiting/audioMute.png' : '../../static/images/waiting/audioUnmute.png'}}"
+           ></image>
+        </view>
+      <view bindtap="onStopMeeting"  class="xy__operate-end xy__call_end">
+          挂断
+        </view>
     </view>
   </view>
+  <view  class="xy__call-box" wx:if="{{!meetingLoading}}" hidden="{{onHold}}" capture-catch:tap="onClickContent">
+      <!-- 小鱼小程序SDK UI组件 -->
+      <xylink-room template="{{ template }}" beauty="{{ 6 }}" muted="{{audioMuted}}" camera="{{camera}}" devicePosition="{{ devicePosition }}" backgroundImage="" id="xylink" bindonRoomEvent="onRoomEvent" />
+    </view>
 </view>
 

@@ -8,8 +8,14 @@ import XYRTC from '@xylink/xy-mp-sdk';
 import {CUSTOM_TEMPLATE} from './template';
 import {audioUnmuteIcon, audioMuteIcon, handUpIcon,handDownIcon,DEVICE_TYPE_MAP} from './configData'
 
+const currentTime = Math.round(new Date().getTime() / 1000);
+
 Page ({
   data: {
+    // 等候室麦克风状态
+    holdAudioMuted:false,
+    // 等候室摄像头状态
+    holdCamera:false,
     // 当前设备ID
     localCallUri:'',
     // 共享信息
@@ -27,7 +33,7 @@ Page ({
     // 前/后置摄像头
     devicePosition: 'front',
     // 呼叫Loading
-    meetingLoading: false,
+    meetingLoading: true,
     // 是否是等候室状态
     onHold: false,
     // 本地网络信号等级
@@ -36,6 +42,8 @@ Page ({
     meetingTime: '',
     // 会议邀请信息显示状态
     inviteInfoShow: false,
+    // 会议号
+    meetingNum:'',
     // 会议信息
     meetingInfo: {},
     // 参会者显示状态
@@ -70,6 +78,12 @@ Page ({
       detail: [],
     },
     displayName: '',
+    // 控制操作栏是否显示
+    showOperateBar: true, 
+    // 操作条点击时间
+    operateTimmer:currentTime,
+    // 定时器
+    operateBarTimmer:''
   },
 
   /**
@@ -124,12 +138,12 @@ Page ({
 
     // 配置-获取邀请链接，参会者头像
     this.XYClient.setFeatureConfig ({
-      enableMeetingInvite: true,
       enableLayoutAvatar: true,
+      enableMeetingInvite: true,
     });
 
     // this.XYClient.setDebug(true, true);
-
+   
     // 发起SDK呼叫，通过回调获取结果
     // 此处请参考API文档，新版本新增其他配置参数
     const response = await this.XYClient.makeCall ({
@@ -144,6 +158,7 @@ Page ({
       audioMuted:audioMute === 'true',
       camera: !(videoMute === 'true'),
       devicePosition: 'front',
+      meetingNum:number,
       displayName,
     });
     this.muteStatus ();
@@ -159,7 +174,8 @@ Page ({
   onGetCallStatus (response) {
     console.log ('call response: ', response);
     const {code, message} = response;
-
+    // 隐藏呼叫Loading
+    this.setData ({meetingLoading: false});
     // 最新的逻辑仅需要处理异常呼叫入会即可，其他逻辑不需要再处理
     if (code !== 200) {
       this.XYClient.showToast (message, () => {
@@ -174,8 +190,20 @@ Page ({
    */
   async onSwitchPosition () {
     const position = await this.XYClient.switchCamera ();
-
     this.setData ({devicePosition: position});
+    this.resetOperateBarTimmer();
+  },
+/**
+   * 切换等候室摄像头状态
+   */
+  async onSwitchholdCamera(){
+    this.setData ({holdCamera: !this.data.holdCamera});
+  },
+/**
+   * 切换等候室麦克风状态
+   */
+  async onSwitchHandAudio(){
+    this.setData ({holdAudioMuted: !this.data.holdAudioMuted});
   },
 
   /**
@@ -185,13 +213,16 @@ Page ({
     switch (this.data.audioData.type) {
       case 'mute':
         this.setData({audioMuted:false})
+
         break;
       case 'unmute':
         if (this.data.disableMute) {
           this.data.handStatus = false;
+          this.XYClient.onMute();
         } else {
-        this.setData({audioMuted:true})
+          this.setData({audioMuted:true})
         }
+       
         break;
       case 'handUp':
         this.XYClient.onHandUp ();
@@ -212,6 +243,7 @@ Page ({
    */
   onSwitchCamera () {
     this.setData ({camera: !this.data.camera});
+    this.resetOperateBarTimmer();
   },
 
   /**
@@ -240,7 +272,6 @@ Page ({
 
   /**
    * 挂断会议消息
-   *
    * 收到此消息可能是因为服务异常、会控挂断、网络断链等情况
    */
   disConnectMeeting (detail) {
@@ -274,13 +305,14 @@ Page ({
         this.data.localCallUri=detail.callUri
         // 开始计算会议时长
         this.onCreateMeetingTimeCount ();
-        // 隐藏呼叫Loading
-        this.setData ({meetingLoading: false});
+        // 订阅参会者
+        this.XYClient.subscribeBulkRoster()
+        // 五秒后收起会议操作调
+        this.resetOperateBarTimmer();
         break;
       case 'disconnected':
         // 退出会议消息
         console.log ('demo get disconnected message: ', detail);
-
         this.disConnectMeeting (detail);
         break;
       case 'meetingInfo':
@@ -298,13 +330,23 @@ Page ({
         console.log ('demo get onHold message: ', detail);
 
         this.setData ({onHold: detail});
+        //进入等候室
+        if(detail){
+          console.log(this.data.audioMuted,this.data.camera,'进入等候音视频状态');
+          this.setData({holdCamera:!this.data.camera,holdAudioMuted:this.data.audioMuted})
+        }else{
+          console.log(this.data.holdAudioMuted,this.data.holdCamera,'进入会议音视频状态');
+
+          this.setData({camera:!this.data.holdCamera,audioMuted:this.data.holdAudioMuted})
+          this.muteStatus ();
+        }
+        
         break;
       case 'roster':
         // 参会者列表数据，当有人员变动或者状态变动，会实时推送最新的列表数据
         console.log ('demo get roster message: ', detail);
-        this.data.rosterList = detail.rosterV;
+        
         this.setData ({total: detail.participantsNum});
-        this.bindSearch ({detail: {value: this.data.searchVal}});
         // 自动布局不需要处理Roster数据
         if (this.data.template.layout !== 'custom') {
           return;
@@ -312,6 +354,13 @@ Page ({
 
         this.handleCustomLayout (detail);
         break;
+      case "bulkRoster":
+        // 全量参会者列表数据
+        console.log ('demo get bulkRoster message: ', detail);
+        this.data.rosterList = detail;
+        this.bindSearch ({detail: {value: this.data.searchVal}});
+
+        break
       case 'netQualityLevel':
         // 网络质量等级
         console.log ('demo get netQualityLevel: ', detail);
@@ -338,17 +387,14 @@ Page ({
       case 'eventLongPress':
         // 画面长按事件
         console.log ('demo get eventLongPress message：', detail);
-
         break;
       case 'eventDoubleClick':
         // 画面双击事件
         console.log ('demo get eventDoubleClick message：', detail);
-
         break;
       case 'speakersInfo':
         // 当前讲话人信息
         console.log ('demo get speakersInfo message：', detail);
-
         break;
       case 'networkParameter':
         // 网络质量等级
@@ -524,16 +570,17 @@ Page ({
         data = this.data.rosterList;
       }
       const filterRoster = data.map ((item) => {
+        const {deviceType,callUri,isActiveSpeaker,videoTxMute,videoRxMute,audioRxMute,audioTxMute} = item
         return {
           ...item,
-          avatar: this.getDeviceAvatar(item.deviceType),
-          isContent:item.callUri === this.data.content.callUri,
-          isLocal:item.callUri === this.data.localCallUri,
-          isActiveSpeaker: item.isActiveSpeaker && !item.audioTxMute,
-          isContentOnly: item.videoTxMute &&
-            item.videoRxMute &&
-            item.audioRxMute &&
-            item.audioTxMute,
+          avatar: this.getDeviceAvatar(deviceType),
+          isContent:callUri === this.data.content.callUri,
+          isLocal:callUri === this.data.localCallUri,
+          isActiveSpeaker: isActiveSpeaker && !audioTxMute,
+          isContentOnly: videoTxMute &&
+            videoRxMute &&
+            audioRxMute &&
+            audioTxMute,
         };
       });
 
@@ -564,7 +611,7 @@ Page ({
     if (+thisTime - this.data.timeStamp < 500) {
       this.setData ({netInfoShow: true});
     }
-    this.data.timeStamp = thisTime;
+    this.data.timeStamp = +thisTime;
   },
 
   /**
@@ -640,6 +687,25 @@ Page ({
 
     data.detectionList.push({type: '接收', netJitter: receiveNetJitter, bitrate: receiveBitrate},)
     this.setData ({netInfoDetail: data});
-  }
-}
+  }},
+
+  // 五秒隐藏操作栏
+  resetOperateBarTimmer(){
+    clearTimeout(this.data.operateBarTimmer);
+    if(this.data.showOperateBar){
+      this.data.operateBarTimmer=setTimeout(()=>{
+        this.setData({showOperateBar:false})
+      },5000)
+    }
+  },
+
+   // 点击视频content，隐藏operateBar
+   onClickContent() {
+    const nowTime = Math.round(new Date().getTime() / 1000); 
+    if (nowTime - this.data.operateTimmer > 1) {
+      this.setData({showOperateBar:!this.data.showOperateBar})
+      this.data.operateTimmer = nowTime;
+    }
+    this.resetOperateBarTimmer();
+  },
 });

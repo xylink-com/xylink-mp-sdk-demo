@@ -31,6 +31,18 @@
   margin-bottom: 10PX;
   font-size: 14PX;
 }
+.form-radio .wx-radio-input.wx-radio-input-checked{
+  border-color:#3876FF !important;
+  background:#3876FF !important;
+}
+.form-radio .wx-radio-input.wx-radio-input-checked::before{
+  background:#3876FF;
+}
+
+.btn-primary{
+  background-color: #3876FF;
+  color: #fff;
+}
 
 .version{
   width: 100%;

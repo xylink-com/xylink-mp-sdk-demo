@@ -12,7 +12,7 @@ Page({
     version: '',
     // 入会信息
     meeting: {
-      number: '915353622534',
+      number: '9035105641',
       password: '',
       name: 'mp',
     },
@@ -47,6 +47,8 @@ Page({
     const callNumber = wx.getStorageSync('XY_CALL_NUMBER');
     if(!callNumber){
       this.logout()
+    }else{
+      this.setData({loginStatus:true})
     }
     const loginMode = wx.getStorageSync('XY_LOGIN_MODE') || 'sdk';
 
@@ -147,6 +149,10 @@ Page({
 
     if (!number) {
       this.XYClient.showToast('会议号不能为空');
+      return;
+    }
+    if(!name){
+      this.XYClient.showToast('入会名称不能为空');
       return;
     }
 
