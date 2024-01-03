@@ -12,7 +12,7 @@ Page({
     version: '',
     // 入会信息
     meeting: {
-      number: '9035105641',
+      number: '915353622534',
       password: '',
       name: 'mp',
     },
