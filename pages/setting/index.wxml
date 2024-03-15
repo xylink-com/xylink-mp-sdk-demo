@@ -8,7 +8,7 @@
 	<radio-group class="form-audio-group" bindchange="radioChange">
 		<label class="form-audio" wx:for="{{layoutModes}}" wx:key="value">
 			<view>
-				<radio value="{{item.value}}" checked="{{item.value === layoutMode}}" />
+				<radio class="form-radio" value="{{item.value}}" checked="{{item.value === layoutMode}}" />
 			</view>
 			<view>{{item.name}}</view>
 		</label>
@@ -18,7 +18,7 @@
 	<radio-group class="form-audio-group" bindchange="loginChange">
 		<label class="form-audio" wx:for="{{loginModes}}" wx:key="value">
 			<view>
-				<radio value="{{item.value}}" checked="{{item.value === loginMode}}" />
+				<radio class="form-radio" value="{{item.value}}" checked="{{item.value === loginMode}}" />
 			</view>
 			<view>{{item.name}}</view>
 		</label>
@@ -52,7 +52,7 @@
 	 bindinput="bindFromServerInput"
 	/>
 
-	<button class="btn" type="primary" bindtap="update">确认修改</button>
+	<button class="btn btn-primary"  bindtap="update">确认修改</button>
 	<button class="btn" type="default" bindtap="reset">恢复默认值</button>
 </view>
 

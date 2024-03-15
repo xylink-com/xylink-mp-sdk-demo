@@ -31,7 +31,8 @@
     "bundle": false,
     "useApiHook": true,
     "useApiHostProcess": true,
-    "condition": false
+    "condition": false,
+    "ignoreUploadUnusedFiles": true
   },
   "compileType": "miniprogram",
   "libVersion": "2.7.1",

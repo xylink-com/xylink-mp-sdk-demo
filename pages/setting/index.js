@@ -83,6 +83,9 @@ Page({
     wx.setStorageSync('XY_APPID', this.data.appId);
     wx.setStorageSync('XY_EXTID', this.data.extId);
     wx.setStorageSync('XY_SERVER', this.data.server);
+    
+    // 需要重新登录
+    wx.setStorageSync('XY_CALL_NUMBER', '');
   },
 
   /**

@@ -29,6 +29,8 @@ Page({
     audioMute: false,
     // 登录方式：SDK企业账号登录、Token登录，推荐使用SDK企业账号登录，更方便
     loginMode: 'sdk',
+    //登录状态
+    loginStatus: false,
   },
   onLoad() {
     const { version, time } = XYRTC.version;
@@ -41,6 +43,13 @@ Page({
 
   // 设置页面配置项可能改动，重新回到首页，重新初始化SDK
   onShow() {
+    // 配置项改动后需要重新弄登录
+    const callNumber = wx.getStorageSync('XY_CALL_NUMBER');
+    if(!callNumber){
+      this.logout()
+    }else{
+      this.setData({loginStatus:true})
+    }
     const loginMode = wx.getStorageSync('XY_LOGIN_MODE') || 'sdk';
 
     this.setData({ loginMode });
@@ -80,6 +89,18 @@ Page({
     }
   },
 
+  // 退出登录
+  logout(){
+    wx.setStorageSync('XY_CALL_NUMBER', '');
+    this.setData({
+      loginStatus:false, 
+        externalLogin: {
+        extUserId: '',
+        displayName: '',
+      },
+    token:''})
+  },
+
   switchEnv() {
     wx.navigateTo({ url: '/pages/setting/index' });
   },
@@ -92,7 +113,7 @@ Page({
       const cn = response.data.callNumber;
 
       wx.setStorageSync('XY_CALL_NUMBER', cn);
-
+      this.setData({loginStatus:true})
       this.XYClient.showToast('登录成功');
     } else {
       this.XYClient.showToast('登录失败，请稍后重试');
@@ -102,13 +123,12 @@ Page({
   changeVideo(e) {
     const { value } = e.detail;
 
-    this.setData({ videoMute: !!value[0] });
+    this.setData({ videoMute: !!value });
   },
 
   changeAudio(e) {
     const { value } = e.detail;
-
-    this.setData({ audioMute: !!value[0] });
+    this.setData({ audioMute: !!value });
   },
 
   /**
@@ -131,6 +151,10 @@ Page({
       this.XYClient.showToast('会议号不能为空');
       return;
     }
+    if(!name){
+      this.XYClient.showToast('入会名称不能为空');
+      return;
+    }
 
     wx.navigateTo({
       url: `/pages/meeting/index?displayName=${name}&password=${password}&number=${number}&videoMute=${videoMute}&audioMute=${audioMute}`,
@@ -145,6 +169,13 @@ Page({
     const value = e.detail.value;
 
     this.setData({ meeting: { ...this.data.meeting, [type]: value } });
+  },
+
+  /**
+   * 清除会议号
+   */
+  clearMeetingNum(){
+    this.setData({ meeting: { ...this.data.meeting, number: '' } });
   },
 
   /**
