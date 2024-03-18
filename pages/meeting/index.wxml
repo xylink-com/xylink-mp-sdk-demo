@@ -64,7 +64,7 @@
           <view class="drawer_info_title">会议号</view>
           <view class="drawer_info-number">
             {{ meetingInfo.callNumber||meetingNum }}
-            <view class="drawer_info-btn" data-tip='会议号已复制到剪贴版中' data-data='{{ meetingInfo.callNumber }}' bindtap="copyText">
+            <view class="drawer_info-btn" data-tip='会议号已复制到剪贴版中' data-data='{{ meetingInfo.callNumber||meetingNum }}' bindtap="copyText">
               <image class="drawer_info-copy" src="../../static/images/icon_copy.png"></image>
             </view>
           </view>
@@ -97,7 +97,7 @@
               </view>
             </view>
 
-            <view wx:for="{{filterRosterList}}" wx:key="item.id" class="drawer_participant_item">
+            <view wx:for="{{filterRosterList}}" wx:key="id" class="drawer_participant_item">
               <view class="drawer-participant-avatar">
                 <image class="icon-avatar" src="{{item.avatar}}"></image>
                 <view wx:if="{{item.isLocal}}" class="icon-status icon-me">我</view>
@@ -199,7 +199,7 @@
   </view>
   <view  class="xy__call-box" wx:if="{{!meetingLoading}}" hidden="{{onHold}}" capture-catch:tap="onClickContent">
       <!-- 小鱼小程序SDK UI组件 -->
-      <xylink-room template="{{ template }}" beauty="{{ 6 }}" muted="{{audioMuted}}" camera="{{camera}}" devicePosition="{{ devicePosition }}" backgroundImage="" id="xylink" bindonRoomEvent="onRoomEvent" />
+      <xylink-room template="{{ template }}" beauty="{{ 6 }}" muted="{{audioMuted}}" camera="{{camera}}" devicePosition="{{ devicePosition }}" id="xylink" bindonRoomEvent="onRoomEvent" />
     </view>
 </view>
 

@@ -176,6 +176,14 @@ Page ({
     const {code, message} = response;
     // 隐藏呼叫Loading
     this.setData ({meetingLoading: false});
+
+    // 缓存sdk <xylink-sdk/>组件节点context，为后续调用组件内部方法用
+    this.xylinkRoom = this.selectComponent('#xylink');
+    // 支持content画面缩放
+    if(this.xylinkRoom){
+      this.xylinkRoom.setViewZoom({ enablePinchToZoom: true });
+    }
+
     // 最新的逻辑仅需要处理异常呼叫入会即可，其他逻辑不需要再处理
     if (code !== 200) {
       this.XYClient.showToast (message, () => {
@@ -627,8 +635,8 @@ Page ({
    *
    */
   copyText (e) {
-    const data = e.target.dataset.data;
-    const tip = e.target.dataset.tip;
+    const {data, tip} = e.currentTarget.dataset;
+
     const that = this;
     if (data) {
       wx.setClipboardData ({

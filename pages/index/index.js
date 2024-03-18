@@ -12,9 +12,9 @@ Page({
     version: '',
     // 入会信息
     meeting: {
-      number: '915353622534',
+      number: '',
       password: '',
-      name: 'mp',
+      name: '',
     },
     // SDK企业登录信息
     externalLogin: {
@@ -108,9 +108,10 @@ Page({
   // 执行初始化登录回调函数
   onGetCallNumber(response) {
     console.log('login response:', response);
+    const {code, data = {}}  = response || {};
     // 状态是200时，初始化登录成功
-    if (response.code === 200 || response.code === 'XYSDK:980200') {
-      const cn = response.data.callNumber;
+    if (code === 200 || code === 'XYSDK:980200') {
+      const cn = data.callNumber;
 
       wx.setStorageSync('XY_CALL_NUMBER', cn);
       this.setData({loginStatus:true})
