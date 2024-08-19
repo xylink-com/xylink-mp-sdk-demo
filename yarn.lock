@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@xylink/xy-mp-sdk@3.10.0":
-  version "3.10.0"
-  resolved "https://registry.npmjs.org/@xylink/xy-mp-sdk/-/xy-mp-sdk-3.10.0.tgz#a3ce08dbf7c79ca81ec38533b9161c7381149456"
-  integrity sha512-k8iIZsBHkrF5MQ0j/Vy7/GX4d9zkgwMg+hQC/RuW7bIlBQMMfTfLK9oK39afFbEMQA6jFQROqmZ/v+YNJ6unYw==
+"@xylink/xy-mp-sdk@3.11.0":
+  version "3.11.0"
+  resolved "https://registry.npmjs.org/@xylink/xy-mp-sdk/-/xy-mp-sdk-3.11.0.tgz#f957fad97d2ae8737924dca2fb16fb783954eb01"
+  integrity sha512-OWdwZhvLRUlX7gxCnpC2S8sWxY1oWBKhABzzdRYLrcLocveAVHrhUxkeq5+UJsNGKXO6Ctb9NiTscD9+RUbzaw==
   dependencies:
     jszip "3.5.0"
 
