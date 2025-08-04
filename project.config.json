@@ -35,7 +35,7 @@
     "ignoreUploadUnusedFiles": true
   },
   "compileType": "miniprogram",
-  "libVersion": "3.5.4",
+  "libVersion": "3.9.0",
   "appid": "wx6f54c06e0cec98ff",
   "projectname": "xylink-sdk-demo",
   "simulatorType": "wechat",
